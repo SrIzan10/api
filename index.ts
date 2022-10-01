@@ -45,6 +45,7 @@ app.post("/sern/newTime", async (req, res, next) => {
 							const saveToDB = new sernTime({
 								name: req.body.name,
 								timezone: req.body.timezone,
+								userid: req.body.userid
 							})
 							saveToDB.save()
 							res.json({ "ok": "kay done" })
