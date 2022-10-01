@@ -1,10 +1,7 @@
-import { Model, Schema } from "mongoose"
-
+import { model, Schema, Model } from "mongoose";
 const schema = new Schema({
-  name: { type: String, required: true },
-  timezone: { type: String, required: true },
+    name: { type: String, required: true },
+    timezone: { type: String, required: true },
 });
-
-const db = new Model(schema, 'sern-timezone');
-
+const db = model('sern-timezones', schema)
 export default db;

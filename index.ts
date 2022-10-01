@@ -43,14 +43,14 @@ app.post('/sern/newTime', async (req, res, next) => {
 })
 
 app.get('/sern/availableTime', async (req, res, next) => {
-	let get = await sernTime.find()
+	let get = await sernTime.find() as any
 	get = get.map((data) => data.name)
 	res.send(get)
 })
 
 app.get('/sern/getTime', async (req, res, next) => {
 	if (req.query.name) {
-		let get = await sernTime.find({name: req.query.name})
+		let get = await sernTime.find({name: req.query.name}) as any
 		get = get.map((data) => data.timezone)
 		res.send(get)
 	} else {

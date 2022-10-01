@@ -1,5 +1,7 @@
 #!/bin/bash
 
+git pull
+
 docker build . -t srizan10/api
 
 docker stop api

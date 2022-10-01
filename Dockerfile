@@ -8,4 +8,4 @@ RUN npm i
 
 EXPOSE 7272
 
-CMD tsc --build;cd
+CMD tsc --watch;node dist/index.js
