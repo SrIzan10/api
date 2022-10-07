@@ -16,6 +16,7 @@ const limiter = rateLimit({
 	legacyHeaders: false,
 })
 app.use(limiter)
+const englishRegex = /^[A-Za-z0-9]*$/
 
 await mongoose.connect(`${process.env.MONGODB}`).then(() => {
 	console.log("Connected to MongoDB!")
@@ -23,7 +24,7 @@ await mongoose.connect(`${process.env.MONGODB}`).then(() => {
 
 app.post("/sern/newTime", async (req, res, next) => {
 	if (
-		req.body.name &&
+		englishRegex.test(req.body.name) &&
 		req.body.timezone &&
 		req.body.key === process.env.SERN_TIME &&
 		req.body.userid
@@ -45,7 +46,7 @@ app.post("/sern/newTime", async (req, res, next) => {
 							const saveToDB = new sernTime({
 								name: req.body.name,
 								timezone: req.body.timezone,
-								userid: req.body.userid
+								userid: req.body.userid,
 							})
 							saveToDB.save()
 							res.json({ "ok": "kay done" })
@@ -56,8 +57,7 @@ app.post("/sern/newTime", async (req, res, next) => {
 		})
 	} else {
 		res.status(400).json({
-			"error":
-				"make sure you have name, timezone and key as a JSON post. You could also have your key wrong.",
+			"error": "make sure you have the right params and english characters.",
 		})
 	}
 })
