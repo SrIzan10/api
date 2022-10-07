@@ -6,6 +6,7 @@ dotenv.config()
 import sernTime from "./schemas/sern-time.js"
 import bodyParser from "body-parser"
 import rateLimit from "express-rate-limit"
+import { consolelogTime } from "./util/consolelogTime.js"
 app.use(bodyParser.json())
 app.disable("x-powered-by")
 const limiter = rateLimit({
@@ -19,7 +20,7 @@ app.use(limiter)
 const englishRegex = /^[A-Za-z0-9]*$/
 
 await mongoose.connect(`${process.env.MONGODB}`).then(() => {
-	console.log("Connected to MongoDB!")
+	consolelogTime(`Connected to MongoDB!`)
 })
 
 app.post("/sern/newTime", async (req, res, next) => {
@@ -64,20 +65,19 @@ app.post("/sern/newTime", async (req, res, next) => {
 
 app.get("/sern/availableTime", async (req, res, next) => {
 	let get = (await sernTime.find()) as any
-	get = get.map((data) => data.name)
+	get = get.map(data => data.name)
 	res.send(get)
 })
 
 app.get("/sern/getTime", async (req, res, next) => {
 	if (req.query.name) {
-		let get = (await sernTime.find({ name: req.query.name })) as any
-		get = get.map((data) => data.timezone)
-		res.send(get)
+		const get = await sernTime.findOne({ name: req.query.name })
+		res.send(get!.timezone)
 	} else {
 		res.json({ "error": "Option name not provided." })
 	}
 })
 
 app.listen(7272, () => {
-	console.log(`listening`)
+	consolelogTime(`listening`)
 })
