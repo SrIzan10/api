@@ -17,7 +17,7 @@ const limiter = rateLimit({
 	legacyHeaders: false,
 })
 app.use(limiter)
-const englishRegex = /^[A-Za-z0-9]*$/
+const englishRegex = /^[A-Za-z0-9 ]*$/
 
 await mongoose.connect(`${process.env.MONGODB}`).then(() => {
 	consolelogTime(`Connected to MongoDB!`)
