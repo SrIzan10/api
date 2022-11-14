@@ -43,7 +43,7 @@ app.post("/sern/newTime", async (req, res, next) => {
 						userid: req.body.userid,
 					})
 					saveToDB.save()
-					res.json({ "ok": "kay done" })
+					res.json({ "ok": "you were added successfully!" })
 				}
 			}
 		})
@@ -70,6 +70,27 @@ app.get("/sern/getTime", async (req, res, next) => {
 	} else {
 		res.status(400).json({
 			"error": "make sure you have the userid param",
+		})
+	}
+})
+
+app.delete("/sern/deleteTime", async (req, res) => {
+	if (req.query.userid && req.query.key === process.env.SERN_TIME) {
+		sernTime.exists({ userid: req.query.userid }, async function (err, doc) {
+			if (err) throw err
+			if (doc) {
+				const timezone = await sernTime.findOne({ userid: req.query.userid })
+				await timezone!.delete()
+				res.json({"ok": "done"})
+			} else {
+				res.status(400).json({
+					"error": "the user doesn't exist",
+				})
+			}
+		})
+	} else {
+		res.status(400).json({
+			"error": "make sure you have the userid param and the right key",
 		})
 	}
 })
