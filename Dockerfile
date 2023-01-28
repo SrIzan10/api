@@ -1,17 +1,13 @@
 FROM node:alpine
 
-COPY package.json /server
+WORKDIR /app
 
-WORKDIR /server
+COPY package.json ./
 
-RUN apk add python make gcc g++
+RUN npm install
 
-RUN npm i
+COPY . .
 
-RUN npm i -g typescript
+RUN tsc --build
 
-EXPOSE 7272
-
-COPY . /server
-
-CMD tsc --build;node dist/index.js
+CMD node dist/index.js
