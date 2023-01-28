@@ -1,100 +1,56 @@
 import mongoose from "mongoose"
 import express from "express"
-const app = express()
-import * as dotenv from "dotenv"
-dotenv.config()
-import sernTime from "./schemas/sern-time.js"
+import 'dotenv/config'
 import bodyParser from "body-parser"
 import rateLimit from "express-rate-limit"
 import { consolelogTime } from "./util/consolelogTime.js"
-app.use(bodyParser.json())
-app.disable("x-powered-by")
-const limiter = rateLimit({
-	windowMs: 1 * 60 * 1000,
-	max: 30,
-	message: { error: "You just got ratelimited." },
-	standardHeaders: true,
-	legacyHeaders: false,
-})
-app.use(limiter)
+import swagger from './docs/swagger.json' assert { type: 'json' }
+import swaggerUI from 'swagger-ui-express'
 
+/* Mongoose */
 await mongoose.connect(`${process.env.MONGODB}`).then(() => {
 	consolelogTime(`Connected to MongoDB!`)
 })
 
-app.post("/sern/newTime", async (req, res, next) => {
-	if (
-		req.body.timezone &&
-		req.body.key === process.env.SERN_TIME &&
-		req.body.userid
-	) {
-		sernTime.exists({ userid: req.body.userid }, function (err, doc) {
-			if (err) throw err
-			if (doc) {
-				res.status(400).json({ "error": "You already created a timezone!" })
-			} else {
-				if (doc) {
-					res
-						.status(400)
-						.json({ "error": "User already exists in the database." })
-				} else {
-					const saveToDB = new sernTime({
-						timezone: req.body.timezone,
-						userid: req.body.userid,
-					})
-					saveToDB.save()
-					res.json({ "ok": "you were added successfully!" })
-				}
-			}
-		})
-	} else {
-		res.status(400).json({
-			"error": "make sure you have the right params.",
-		})
-	}
+/* Express configuration */
+const app = express()
+const limiter = rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 10,
+	message: { error: "You just got ratelimited." },
+	standardHeaders: true,
+})
+app.use(bodyParser.json())
+app.use('/docs', swaggerUI.serve, swaggerUI.setup(swagger));
+app.use(express.static('public'))
+app.disable("x-powered-by")
+
+/* All route imports */
+import newTime from "./routes/sern/newTime.js"
+import getTime from "./routes/sern/getTime.js"
+import deleteTime from "./routes/sern/deleteTime.js"
+import download from "./routes/misc/download.js"
+
+app.use("/sern/newTime", limiter)
+app.post("/sern/newTime", async (req, res) => {
+	newTime(req, res)
 })
 
-app.get("/sern/getTime", async (req, res, next) => {
-	if (req.query.userid) {
-		sernTime.exists({ userid: req.query.userid }, async function (err, doc) {
-			if (err) throw err
-			if (doc) {
-				const timezone = (await sernTime.findOne({ userid: req.query.userid }))?.timezone
-				res.json({"timezone": timezone})
-			} else {
-				res.status(400).json({
-					"error": "you don't exist in the database",
-				})
-			}
-		})
-	} else {
-		res.status(400).json({
-			"error": "make sure you have the userid param",
-		})
-	}
+app.use("/sern/getTime", limiter)
+app.get("/sern/getTime", async (req, res) => {
+	getTime(req, res)
 })
 
+app.use("/sern/newTime", limiter)
 app.delete("/sern/deleteTime", async (req, res) => {
-	if (req.query.userid && req.query.key === process.env.SERN_TIME) {
-		sernTime.exists({ userid: req.query.userid }, async function (err, doc) {
-			if (err) throw err
-			if (doc) {
-				const timezone = await sernTime.findOne({ userid: req.query.userid })
-				await timezone!.delete()
-				res.json({"ok": "done"})
-			} else {
-				res.status(400).json({
-					"error": "the user doesn't exist",
-				})
-			}
-		})
-	} else {
-		res.status(400).json({
-			"error": "make sure you have the userid param and the right key",
-		})
-	}
+	deleteTime(req, res)
+})
+
+app.use("/misc/download", limiter)
+app.get("/misc/download", async (req, res) => {
+	download(req, res)
 })
 
 app.listen(7272, () => {
-	consolelogTime(`listening`)
+	consolelogTime(`Listening`)
 })
