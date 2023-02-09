@@ -5,7 +5,7 @@
     "description": "Image recognition stuff for now lol",
     "version": "1.0.0"
   },
-  "host": "api.srizan.ml",
+  "host": "api.srizan.dev",
   "basePath": "/",
   "schemes": [
     "https"
