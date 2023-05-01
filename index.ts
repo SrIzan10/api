@@ -6,6 +6,7 @@ import rateLimit from "express-rate-limit"
 import { consolelogTime } from "./util/consolelogTime.js"
 import swagger from './docs/swagger.json' assert { type: 'json' }
 import swaggerUI from 'swagger-ui-express'
+import cors from 'cors'
 
 /* Mongoose */
 await mongoose.connect(`${process.env.MONGODB}`).then(() => {
@@ -59,7 +60,7 @@ app.post("/transcriptor/save", (req, res) => {
 })
 
 app.use("/transcriptor/get", limiter)
-app.get("/transcriptor/get", (req, res) => {
+app.get("/transcriptor/get", cors(), (req, res) => {
 	getTranscript(req, res)
 })
 
