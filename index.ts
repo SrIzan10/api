@@ -59,7 +59,7 @@ app.post("/transcriptor/save", (req, res) => {
 })
 
 app.use("/transcriptor/get", limiter)
-app.post("/transcriptor/get", (req, res) => {
+app.get("/transcriptor/get", (req, res) => {
 	getTranscript(req, res)
 })
 
