@@ -17,7 +17,7 @@ const app = express()
 const limiter = rateLimit({
 	windowMs: 1 * 60 * 1000,
 	max: 10,
-	message: { error: "You just got ratelimited." },
+	message: { success: false, reason: "you just got ratelimited", error: "You just got ratelimited." },
 	standardHeaders: true,
 })
 app.use(bodyParser.json())
@@ -30,6 +30,8 @@ import newTime from "./routes/sern/newTime.js"
 import getTime from "./routes/sern/getTime.js"
 import deleteTime from "./routes/sern/deleteTime.js"
 import download from "./routes/misc/download.js"
+import saveTranscript from "./routes/transcriptor/saveTranscript.js"
+import getTranscript from "./routes/transcriptor/getTranscript.js"
 
 app.use("/sern/newTime", limiter)
 app.post("/sern/newTime", async (req, res) => {
@@ -49,6 +51,16 @@ app.delete("/sern/deleteTime", async (req, res) => {
 app.use("/misc/download", limiter)
 app.get("/misc/download", async (req, res) => {
 	download(req, res)
+})
+
+app.use("/transcriptor/save", limiter)
+app.post("/transcriptor/save", (req, res) => {
+	saveTranscript(req, res)
+})
+
+app.use("/transcriptor/get", limiter)
+app.post("/transcriptor/get", (req, res) => {
+	getTranscript(req, res)
 })
 
 app.listen(7272, () => {
