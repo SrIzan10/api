@@ -6,8 +6,11 @@ import { router } from "express-file-routing"
 import path from 'node:path'
 import { fileURLToPath } from 'node:url';
 import { PrismaClient } from "@prisma/client"
+const exec = (await import('util')).promisify((await import('child_process')).exec);
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
+
+await exec('npx prisma generate')
 
 /* MongoDB */
 export const prisma = new PrismaClient()
