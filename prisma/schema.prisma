@@ -1,0 +1,24 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGODB")
+}
+
+model sern_timezones {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  v        Int    @default(0) @map("__v") @ignore
+  timezone String
+  userid   String @unique
+}
+
+model transcripts {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  v        Int    @default(0) @map("__v") @ignore
+  guild    String
+  msgid    String @unique
+  text     String
+  username String
+}

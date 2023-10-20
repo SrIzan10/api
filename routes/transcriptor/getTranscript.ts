@@ -1,11 +1,16 @@
-import { Request, Response } from "express"
-import db from "../../schemas/transcripts.js"
+import type { Handler } from "express"
+import { prisma } from "../../index.js"
 
-export default async function getTranscript(req: Request, res: Response) {
-    try {
-        var database = await db.findOne({ msgid: req.query.msgid })
-    } catch {
-        return res.status(400).send({ success: false, reason: "msgid not found in db" })
-    }
+export const get: Handler = async (req, res) => {
+    if (!req.query.msgid) return res.status(400).json({  error: "msgid is required" })
+    if (await prisma.transcripts.count({ where: { msgid: req.query.msgid as string } }) === 0)
+        return res.status(400).json({
+            error: "the message doesn't exist",
+        })
+    const database = await prisma.transcripts.findUnique({
+        where: {
+            msgid: req.query.msgid as string
+        }
+    })
     res.status(200).send({ text: database?.text, username: database?.username, guild: database?.guild, msgid: database?.msgid })
 }

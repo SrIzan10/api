@@ -1,22 +1,21 @@
-import sernTime from "../../schemas/sern-time.js"
-import { Request, Response } from "express"
+import { prisma } from "../../index.js"
+import type { Handler } from "express"
 
-export default async function getTime(req: Request, res: Response) {
+export const get: Handler = async (req, res) => {
     if (req.query.userid) {
-		sernTime.exists({ userid: req.query.userid }, async function (err, doc) {
-			if (err) throw err
-			if (doc) {
-				const timezone = (await sernTime.findOne({ userid: req.query.userid }))?.timezone
-				res.json({"timezone": timezone})
-			} else {
-				res.status(400).json({
-					"error": "you don't exist in the database",
-				})
+		if (await prisma.sern_timezones.count({ where: { userid: req.query.userid as string } }) === 0)
+			return res.status(400).json({
+				error: "the user doesn't exist",
+			})
+		const timezone = await prisma.sern_timezones.findUnique({
+			where: {
+				userid: req.query.userid as string,
 			}
 		})
+		res.json({ timezone: timezone?.timezone })
 	} else {
 		res.status(400).json({
-			"error": "make sure you have the userid param",
+			error: "make sure you have the userid param",
 		})
 	}
 }

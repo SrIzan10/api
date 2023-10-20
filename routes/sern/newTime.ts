@@ -1,34 +1,29 @@
-import sernTime from "../../schemas/sern-time.js"
-import { Request, Response } from "express"
+import { prisma } from "../../index.js"
+import type { Handler } from "express"
 
-export default async function newTime(req: Request, res: Response) {
+export const post: Handler = async (req, res) => {
 	if (
 		req.body.timezone &&
 		req.body.key === process.env.SERN_TIME &&
 		req.body.userid
 	) {
-		sernTime.exists({ userid: req.body.userid }, function (err, doc) {
-			if (err) throw err
-			if (doc) {
-				res.status(400).json({ "error": "You already created a timezone!" })
-			} else {
-				if (doc) {
-					res
-						.status(400)
-						.json({ "error": "User already exists in the database." })
-				} else {
-					const saveToDB = new sernTime({
-						timezone: req.body.timezone,
-						userid: req.body.userid,
-					})
-					saveToDB.save()
-					res.json({ "ok": "you were added successfully!" })
-				}
+		if (await prisma.sern_timezones.count({ where: { userid: req.body.userid as string } }) !== 0)
+			return res.status(400).json({ "error": "User already exists in the database." })
+		const userid = req.body.userid as string
+		const timezone = req.body.timezone as string
+		await prisma.sern_timezones.create({
+			data: {
+				userid,
+				timezone
 			}
+		}).catch(() => {
+			return res.status(500).json({ "error": "internal server error" })
 		})
+
+		res.json({ "ok": "you were added successfully!" })
 	} else {
 		res.status(400).json({
-			"error": "make sure you have the right params.",
+			"error": "make sure you have the right params",
 		})
 	}
 }

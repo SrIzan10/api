@@ -1,6 +1,5 @@
-import axios from "axios"
-import { Request, Response } from "express"
+import type { Handler } from "express"
 
-export default async function download(req: Request, res: Response) {
+export const get: Handler = async (req, res) => {
 	res.send('Disabled due to security reasons')
 }

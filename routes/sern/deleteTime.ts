@@ -1,23 +1,28 @@
-import sernTime from "../../schemas/sern-time.js"
-import { Request, Response } from "express"
+import { prisma } from '../../index.js'
+import type { Handler } from 'express'
 
-export default async function deleteTime(req: Request, res: Response) {
-    if (req.query.userid && req.query.key === process.env.SERN_TIME) {
-		sernTime.exists({ userid: req.query.userid }, async function (err, doc) {
-			if (err) throw err
-			if (doc) {
-				const timezone = await sernTime.findOne({ userid: req.query.userid })
-				await timezone!.delete()
-				res.json({"ok": "done"})
-			} else {
-				res.status(400).json({
-					"error": "the user doesn't exist",
-				})
-			}
+export const del: Handler = async (req, res) => {
+	if (req.query.userid && req.query.key === process.env.SERN_TIME) {
+		if (
+			await prisma.sern_timezones.findUnique({
+				where: { userid: req.query.userid as string },
+			})
+		)
+			return res.status(400).json({
+				error: "the user doesn't exist",
+			})
+		
+		await prisma.sern_timezones.delete({
+			where: {
+				userid: req.query.userid as string,
+			},
+		}).catch(() => {
+			return res.status(500).json({ error: 'that didnt work' })
 		})
+		res.json({ ok: 'done' })
 	} else {
 		res.status(400).json({
-			"error": "make sure you have the userid param and the right key",
+			error: 'make sure you have the userid param and the right key',
 		})
 	}
 }
