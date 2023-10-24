@@ -6,6 +6,7 @@ import { router } from "express-file-routing"
 import path from 'node:path'
 import { fileURLToPath } from 'node:url';
 import { PrismaClient } from "@prisma/client"
+import cors from "cors"
 const exec = (await import('util')).promisify((await import('child_process')).exec);
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -27,6 +28,7 @@ app.use(express.json())
 app.use(express.static('public'))
 app.use(limiter)
 app.disable("x-powered-by")
+app.use(cors())
 
 router({ directory: path.join(dirname, '/routes') }).then((r) => {
 	app.use("/", r);
