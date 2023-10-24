@@ -12,6 +12,8 @@ model sern_timezones {
   v        Int    @default(0) @map("__v") @ignore
   timezone String
   userid   String @unique
+
+  @@map("sern-timezones")
 }
 
 model transcripts {

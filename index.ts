@@ -10,7 +10,7 @@ const exec = (await import('util')).promisify((await import('child_process')).ex
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-await exec('npx prisma generate')
+if (process.argv[2] !== '--dev') await exec('npx prisma generate')
 
 /* MongoDB */
 export const prisma = new PrismaClient()
@@ -19,7 +19,7 @@ export const prisma = new PrismaClient()
 const app = express()
 const limiter = rateLimit({
 	windowMs: 1 * 60 * 1000,
-	max: 10,
+	max: 30,
 	message: { success: false, reason: "you just got ratelimited", error: "You just got ratelimited." },
 	standardHeaders: true,
 })

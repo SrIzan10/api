@@ -3,15 +3,6 @@ import type { Handler } from 'express'
 
 export const del: Handler = async (req, res) => {
 	if (req.query.userid && req.query.key === process.env.SERN_TIME) {
-		if (
-			await prisma.sern_timezones.findUnique({
-				where: { userid: req.query.userid as string },
-			})
-		)
-			return res.status(400).json({
-				error: "the user doesn't exist",
-			})
-		
 		await prisma.sern_timezones.delete({
 			where: {
 				userid: req.query.userid as string,
