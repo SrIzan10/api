@@ -1,5 +1,5 @@
 # Build stage
-FROM node:lts-alpine AS build
+FROM node:20.14.0-alpine3.20 AS build
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ COPY . .
 RUN yarn build
 
 # Final stage
-FROM node:lts-alpine AS final
+FROM node:20.14.0-alpine3.20 AS final
 
 WORKDIR /app
 
