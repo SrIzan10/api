@@ -52,5 +52,5 @@ jobs:
           AUTH_HEADER: ${{ secrets.WHSERVER_TOKEN }}
         run: |
           curl -X POST \
-            -H "Authorization: Bearer $AUTH_HEADER" \
+            -H "Authorization: $AUTH_HEADER" \
             https://webhooks.srizan.dev/hooks/api
